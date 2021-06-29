@@ -30,3 +30,4 @@
 | Read15      | [read 15](read15.md)    |
 | Read16      | [read 16](read16.md)    |
 | Read17      | [read 17](read17.md)    |
+| Read18      | [read 18](read18.md)    |
