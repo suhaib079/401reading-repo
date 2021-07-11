@@ -33,3 +33,4 @@
 | Read18      | [read 18](read18.md)    |
 | Read19      | [read 19](read19.md)    |
 | Read26      | [read 26](read26.md)    |
+| Read27      | [read 27](read27.md)    |
