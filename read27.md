@@ -1,53 +1,100 @@
+# Django Models
+## Model Primer
 
-## What is Django?
-Django is a high-level Python web framework that enables rapid development of secure and maintainable websites. The Django web framework is a free, open source framework that can speed up development of a web application being built in the Python programming language.The Django web framework, deployed on a web server, can help developers quickly produce a web frontend that’s feature-rich, secure and scalable.
+Models are usually defined in an application's models.py file. They are implemented as subclasses of django.db.models.Model, and can include fields
 
+```python
+from django.db import models
 
-## The Structure of a Django Website:
-A Django website consists of a single project that is split into separate apps. The idea is that each app handles a self-contained function that the site needs to perform. As an example, imagine an application like Instagram. There are several different functions that need to be performed:
+class MyModelName(models.Model):
+    """A typical class defining a model, derived from the Model class."""
 
-- User management: Login, logout, register, and so on
-- The image feed: Uploading, editing, and displaying images
-- Private messaging: Private messages between users and notifications
-## Django Model-View-Controller Pattern (MVC):
-- Model defines the data structure. This is usually a database and is the base layer to an application.
-- View displays some or all of the data to the user with HTML and CSS.
-- Controller handles how the database and the view interact.
+    # Fields
+    my_field_name = models.CharField(max_length=20, help_text='Enter field documentation')
+    ...
 
-## Starting with Django :
+    # Metadata
+    class Meta:
+        ordering = ['-my_field_name']
 
-1. Creating a project(WSL):
+    # Methods
+    def get_absolute_url(self):
+        """Returns the url to access a particular instance of MyModelName."""
+        return reverse('model-detail-view', args=[str(self.id)])
 
-        django-admin startproject mysite
-2. The development server(WSL):
+    def __str__(self):
+        """String for representing the MyModelName object (in Admin site etc.)."""
+        return self.my_field_name'
+```
 
-        python manage.py runserver
+## Fields
 
-3. Creating the app(WSL):
+Model can have an arbitrary number of fields, of any type each one represents a column of datatables. 
 
-        python manage.py startapp app_name
+#### Common field arguments
 
-4. Write your first view:
+- help_text: Provides a text label for HTML forms (e.g. in the admin site), as described above.
+- verbose_name: A human-readable name for the field used in field labels. If not specified, Django will infer the default verbose name from the field name.
+- default: The default value for the field. This can be a value or a callable object, in which case the object will be called every time a new record is created.
+- null: If True, Django will store blank values as NULL in the database for fields where this is appropriate (a CharField will instead store an empty string). The default is False.
+- blank: If True, the field is allowed to be blank in your forms. The default is False, which means that Django's form validation will force you to enter a value. This is often used with null=True , because if you're going to allow blank values, you also want the database to be able to represent them appropriately.
+- choices: A group of choices for this field. If this is provided, the default corresponding form widget will be a select box with these choices instead of the standard text field.
+- primary_key: If True, sets the current field as the primary key for the model (A primary key is a special database column designated to uniquely identify all the different table records). If no field is specified as the primary key then Django will automatically add a field for this purpose.
 
-        from django.http import HttpResponse
+#### Common field types 
 
+* CharField is used to define short-to-mid sized fixed-length strings. You must specify the max_length of the data to be stored.
+* TextField is used for large arbitrary-length strings. You may specify a max_length for the field, but this is used only when the field is displayed in forms (it is not enforced at the database level).
+* IntegerField is a field for storing integer (whole number) values, and for validating entered values as integers in forms.
+* DateField and DateTimeField are used for storing/representing dates and date/time information (as Python datetime.date in and datetime.datetime objects, respectively). These fields can additionally declare the (mutually exclusive) parameters auto_now=True (to set the field to the current date every time the model is saved), auto_now_add (to only set the date when the model is first created) , and default (to set a default date that can be overridden by the user).
+* EmailField is used to store and validate email addresses.
+* FileField and ImageField are used to upload files and images respectively (the ImageField adds additional validation that the uploaded file is an image). These have parameters to define how and where the uploaded files are stored.
+* AutoField is a special type of IntegerField that automatically increments. A primary key of this type is automatically added to your model if you don’t explicitly specify one.
+* ForeignKey is used to specify a one-to-many relationship to another database model (e.g. a car has one manufacturer, but a manufacturer can make many cars). The "one" side of the relationship is the model that contains the "key" (models containing a "foreign key" referring to that "key", are on the "many" side of such a relationship).
+* ManyToManyField is used to specify a many-to-many relationship (e.g. a book can have several genres, and each genre can contain several books). In our library app we will use these very similarly to ForeignKeys, but they can be used in more complicated ways to describe the relationships between groups. These have the parameter on_delete to define what happens when the associated record is deleted (e.g. a value of models.SET_NULL would set the value to NULL).
 
-        def index(request):
-          return HttpResponse("Hello, world")
-in the app_name file include the following code : 
+### Methods
 
-        from django.urls import path
-        from . import views
+Minimally, in every model you should define the standard Python class method `__str__()` to return a human-readable string for each object. This string is used to represent individual records in the administration site (and anywhere else you need to refer to a model instance). Often this will return a title or name field from the model.
 
-        urlpatterns = [
-            path('', views.index, name='index'),
-        ]
-The next step is to point the root URLconf at the polls.urls module. In mysite/urls.py, add an import for django.urls.include and insert an include() in the urlpatterns list, so you have:
+```python
+def __str__(self):
+    return self.field_name
+```
 
-        from django.contrib import admin
-        from django.urls import include, path
+Another common method to include in Django models is get_absolute_url(), which returns a URL for displaying individual model records on the website (if you define this method then Django will automatically add a "View on Site" button to the model's record editing screens in the Admin site). A typical pattern for get_absolute_url() is shown below.
 
-        urlpatterns = [
-            path('app_name/', include('app_name.urls')),
-            path('admin/', admin.site.urls),
-        ]
+```python
+def get_absolute_url(self):
+    """Returns the url to access a particular instance of the model."""
+    return reverse('model-detail-view', args=[str(self.id)])
+```
+
+## Django Admin Site
+
+it can be used for  build a site area that can create, view, update, and delete records. 
+
+### Registering models
+
+ open admin.py in the catalog application (/locallibrary/catalog/admin.py). It currently looks like this — note that it already imports django.contrib.admin:
+
+```python
+from django.contrib import admin
+
+# Register your models here.
+```
+
+Register the models by copying the following text into the bottom of the file. This code imports the models and then calls admin.site.register to register each of them.
+
+```python
+from .models import Author, Genre, Book, BookInstance
+
+admin.site.register(Book)
+admin.site.register(Author)
+admin.site.register(Genre)
+admin.site.register(BookInstance)
+```
+
+### Creating a superuser
+
+ you need a user account with Staff status enabled. In order to view and create records we also need this user to have permissions to manage all our objects. 
