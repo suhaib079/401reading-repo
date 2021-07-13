@@ -3,8 +3,8 @@
 sometimes we don't want to use only the feilds available in the built in user model or we want to change some feilds , for example we may want to make the user log in by using email instead of the username 
 
 in today's read I will walk with you in the steps of how to create a custom user model
-
-1. create an app and add it in the installed apps in the settings 
+### create app
+ create an app and add it in the installed apps in the settings 
 
 - let's call our new app "account"
 
@@ -15,8 +15,8 @@ in today's read I will walk with you in the steps of how to create a custom user
 - then add AUTH_USER_MODEL
 
         AUTH_USER_MODEL = 'account.CustomUser' 
-
-2. we will start bulding our custom model inside the app "account" model 
+### bulid custem model
+custom model inside the app "account" model 
 
 - import AbstractUser
 
@@ -27,13 +27,13 @@ in today's read I will walk with you in the steps of how to create a custom user
         class CustomUser(AbstractUser):
         pass
         # add additional fields in here
-
-3. create a new file in the accounts app called forms.py
+### create new file
+ create a new file in the accounts app called forms.py
 
 
         touch account/forms.py
-
-4. We'll update it with the following code to largely subclass the existing forms.
+### update
+update it with the following code to largely subclass the existing forms.
 
         from django import forms
         from django.contrib.auth.forms import UserCreationForm, UserChangeForm
@@ -51,7 +51,9 @@ in today's read I will walk with you in the steps of how to create a custom user
                 model = CustomUser
                 fields = ('username', 'email')
 
-5. Finally we update admin.py since the Admin is highly coupled to the default User model.
+
+### update admin
+ update admin.py since the Admin is highly coupled to the default User model.
 
         # accounts/admin.py
         from django.contrib import admin
