@@ -41,3 +41,4 @@
 | Read32      | [read 32](read32.md)    |
 | Read33      | [read 33](read33.md)    |
 | Read34      | [read 34](read34.md)    |
+| Read36      | [read 36](read36.md)    |
